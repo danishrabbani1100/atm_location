@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Leaflet Draggable Marker Example</title>
+  <link rel='stylesheet' href='https://npmcdn.com/leaflet@0.7.7/dist/leaflet.css'>
+	<style>
+	body {
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  background: rgb(242,191,142);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#499bea', endColorstr='#207ce5', GradientType=1 );
+}
+
+.example-container {
+  background: white;
+  width: 400px;
+  box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: helvetica;
+  font-size: 16px;
+  padding: 1em;
+  -webkit-box-shadow: 1px 5px 5px 0px rgba(0,0,0,0.15);
+  -moz-box-shadow: 1px 5px 5px 0px rgba(0,0,0,0.15);
+  box-shadow: 1px 5px 5px 0px rgba(0,0,0,0.15);
+  border-radius: 8px;
+}
+
+.example-container * {
+  box-sizing: inherit;
+  font-size: inherit;
+}
+
+.example-container .header {
+  margin: 1em 0;
+}
+
+.example-container #MapLocation {
+  margin-bottom: 0.75em;
+}
+
+.example-container input {
+  width: 100%;
+  margin: 0.5em 0;
+  padding: 0.5em;
+  border: 1px solid #569ae3;
+}
+	
+	</style>
+</head>
+<body onload="getLocation()">
+<!-- partial:index.partial.html -->
+<div class="example-container">
+<div class="row">
+  <section class="col col-10">
+    <div class="row">
+      <section class="col col-6">
+        <div id="MapLocation" style="height: 450px"></div>
+      </section>
+    </div>
+    <div class="row">
+   
+      <section class="col col-3">
+		<button onclick="myFunction()" style="float:right; background-color: #008CBA; border: none; color: white; padding: 9px 122px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin-right:10px; cursor: pointer; border-radius: 19px;">Send Location</button>
+
+<p id="demo"></p>
+      </section>
+    </div>
+  </section>
+</div>
+</div>
+<!-- partial -->
+  <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+<script src='https://npmcdn.com/leaflet@0.7.7/dist/leaflet.js'></script>
+<script> 
+  (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/messenger.Extensions.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'Messenger'));
+	
+	
+var latitude = 0,longitude = 0;
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else { 
+    x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+}
+
+function showPosition(position) {
+  console.log("assa: " + position.coords.latitude);
+  latitude = position.coords.latitude;
+  longitude = position.coords.longitude; 
+  showMap();
+}
+
+
+function showMap() {
+$(function() {
+  // use below if you want to specify the path for leaflet's images
+  //L.Icon.Default.imagePath = '@Url.Content("~/Content/img/leaflet")';
+
+
+  // use below if you have a model
+  // var curLocation = [@Model.Location.Latitude, @Model.Location.Longitude];
+
+  /*if (curLocation[0] == 0 && curLocation[1] == 0) {
+    curLocation = [33.663706, 73.053041];
+	latitude = 33.663706;
+	longitude = 73.053041;
+  }*/
+	var curLocation = [0, 0];
+	if(latitude != 0) {
+		curLocation = [latitude, longitude];
+		console.log("not null");
+	  
+	}else{
+		curLocation = [33.663706, 73.023041];
+		console.log("null");
+		latitude = 33.663706;
+		longitude = 73.023041;
+	}
+  var map = L.map('MapLocation').setView(curLocation, 14);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  map.attributionControl.setPrefix(false);
+
+  var marker = new L.marker(curLocation, {
+    draggable: 'true'
+  });
+
+	
+	
+  marker.on('dragend', function(event) {
+    var position = marker.getLatLng();
+	latitude = position.lat;
+	longitude = position.lng;
+	console.log(position.lat);
+    marker.setLatLng(position, {
+      draggable: 'true'
+    }).bindPopup(position).update();
+    $("#Latitude").val(position.lat);
+    $("#Longitude").val(position.lng).keyup();
+  });
+
+  $("#Latitude, #Longitude").change(function() {
+    var position = [parseInt($("#Latitude").val()), parseInt($("#Longitude").val())];
+    marker.setLatLng(position, {
+      draggable: 'true'
+    }).bindPopup(position).update();
+    map.panTo(position);
+  });
+
+  map.addLayer(marker);
+})
+}
+function myFunction() {
+ (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/messenger.Extensions.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'Messenger'));
+	
+	MessengerExtensions.requestCloseBrowser(function success() {
+
+                    }, function error(err) {
+
+                    });
+//$.getJSON('https://tinyurl.com/y2fbkttb/showNearest?latitude='+latitude+'&longitude='+longitude+'&id=<%= id %>&pageToken=<%= token %>', function(data) {
+//  //data is the JSON string
+//});
+	  //document.getElementById("demo").innerHTML = "latitude: "  +latitude + " longitude: " + longitude;
+	}
+	
+	
+
+</script>
+</body>
+</html>
